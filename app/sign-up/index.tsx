@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, ActivityIndicator, Image, TouchableOpacity, Dimensions } from 'react-native';
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -13,6 +13,11 @@ const SignUpScreen = () => {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    const { width } = Dimensions.get('window');
+    const isLargeScreen = width > 600;
+    const paddingX = isLargeScreen ? 'px-20' : 'px-6';
+    const profileImageSize = isLargeScreen ? 160 : 100;
     // Pick an image from the gallery
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -35,7 +40,6 @@ const SignUpScreen = () => {
         try {
             const response = await fetch(profileImage); // Fetch image from URI
             const blob = await response.blob(); // Convert to Blob
-            console.log("Image Blob:", blob);
             const fileExt = profileImage.split('.').pop();
             const filePath = `profile_pictures/${userId}.${fileExt}`;
             
@@ -54,7 +58,6 @@ const SignUpScreen = () => {
                     contentType: blob.type,
                     upsert: true, // Overwrite if exists
                 });
-                console.log('Image Upload Data:', data);
     
             if (error) {
                 console.error("Image Upload Error:", error);
@@ -65,7 +68,6 @@ const SignUpScreen = () => {
             const { data: publicUrlData } = supabase.storage
                 .from('jacar_upload')
                 .getPublicUrl(filePath);
-                console.log('✅ Public URL:', publicUrlData.publicUrl); 
             return publicUrlData.publicUrl;
         } catch (err) {
             console.error("Upload Failed:", err);
@@ -101,21 +103,25 @@ const SignUpScreen = () => {
                 return;
             }
             
-            console.log('User:', data.user);
             if (data.user) {
-                // Upload profile picture
-                const profilePicUrl = profileImage ? await uploadProfilePicture(data.user.id, profileImage) : null;
-                await supabase.from('profiles').insert([{
-                  id: data.user.id,
-                  username,
-                  email,
-                  profile_picture_url: profilePicUrl, //when i passe profile_picture_url in profilePicUrl is null not correctly fix please
-                  created_at: new Date().toISOString(),
-                }]);
-                
-    
-                router.replace('/profile');
-            }
+        // Upload profile picture
+        const profilePicUrl = await uploadProfilePicture(data.user.id, profileImage);
+        console.log('Profile Picture URL:', profilePicUrl);
+
+        // Update the profile with the profile picture URL
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ profile_picture_url: profilePicUrl })
+          .eq('id', data.user.id);
+
+        if (updateError) {
+          console.error("Profile update error:", updateError);
+          setError(updateError.message);
+          return;
+        }
+
+        router.replace('/sign-in');
+      }
         } catch (err) {
             setError('An unexpected error occurred.');
             console.error(err);
@@ -126,22 +132,30 @@ const SignUpScreen = () => {
     
     return (
         <View className="flex-1 justify-center p-4 bg-white">
-            <View className='absolute top-0 right-0 left-0 bg-sky-400 h-[400px]'>
+            <View className='absolute top-0 right-0 left-0 bg-sky-400 h-[370px]'>
+            <View className="flex-1 justify-center items-center mt-16">
             {/* Profile Picture Upload */}
             <TouchableOpacity onPress={pickImage} className="items-center my-auto ">
                 {profileImage ? (
                     <Image source={{ uri: profileImage }} className="w-40 h-40 rounded-full" />
                 ) : (
                     <View className="w-40 h-40 rounded-full bg-gray-200 items-center justify-center">
-                        <ImagePlus color="gray" size={32}  />
+                        <ImagePlus color="gray" size={32}
+                        style={{
+                            width: profileImageSize, 
+                            height: profileImageSize, 
+                            borderRadius: profileImageSize / 2
+                        }} 
+                        />
                     </View>
                 )}
             </TouchableOpacity>
             </View>
+            </View>
 
-            <View className='px-20 bg-white rounded-t-[34px] py-10'>
+            <View className={`bg-white rounded-t-[34px] py-10 w-ful ${paddingX}`} style={{ marginTop: isLargeScreen ? 32 : 160 }}>
                 
-            <Text className="text-4xl font-bold mb-4 px-20 text-center text-sky-500">Create new account</Text>
+            <Text className="text-4xl font-bold mb-4 text-center text-sky-500">Create new account</Text>
            
             {/* Email Input */}
             <TextInput 

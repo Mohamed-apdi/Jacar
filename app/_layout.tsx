@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, ScrollView } from 'react-native';
 import { Slot, useRouter } from 'expo-router';
 import "../global.css";
 import { supabase } from '@/lib/supabaseClient';
@@ -35,7 +35,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Slot />
+      </ScrollView>
     </SafeAreaView>
   );
 }

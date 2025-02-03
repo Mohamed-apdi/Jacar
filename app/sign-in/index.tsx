@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabaseClient";
@@ -15,6 +16,11 @@ const SignInScreen = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+    const { width } = Dimensions.get('window');
+    const isLargeScreen = width > 600;
+    const paddingX = isLargeScreen ? 'px-20' : 'px-6';
+    const profileImageSize = isLargeScreen ? 160 : 100;
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -33,7 +39,7 @@ const SignInScreen = () => {
     if (error) {
       setError(error.message);
     } else {
-      router.replace("/profile");
+      router.replace("/home");
     }
 
     setLoading(false);
@@ -49,7 +55,7 @@ const SignInScreen = () => {
       </View>
       <View className="px-20 bg-white rounded-t-[34px] py-10">
         {/* Title */}
-        <Text className="text-4xl font-bold dpx-20 text-center text-sky-500 mb-6">
+        <Text className="font-bold text-center text-sky-500 mb-6" style={{fontSize: isLargeScreen ? 36 : 20}}>
           Sign in to your account
         </Text>
 
@@ -89,7 +95,7 @@ const SignInScreen = () => {
         <View className="mt-4 items-center flex flex-row justify-center">
           <Text className="text-gray-500 text-center mr-1">Don't have an account?</Text>
           <TouchableOpacity onPress={() => router.push("/sign-up")}>
-            <Text className="text-sky-500 text-center">Sign Up</Text>
+            <Text className="text-sky-500 text-center underline">Sign Up</Text>
           </TouchableOpacity>
         </View>
 
