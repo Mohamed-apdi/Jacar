@@ -34,7 +34,7 @@ export default function RootLayout() {
   }, []); // ✅ Added [] to prevent infinite re-renders
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-white p-2">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <Slot />
       </ScrollView>
