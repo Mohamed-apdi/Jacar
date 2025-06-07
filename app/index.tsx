@@ -1,3 +1,20 @@
+// import { View, Text, Button } from 'react-native'
+// import React from 'react'
+// import { useRouter } from 'expo-router'
+// import ScreenWrapper from '@/components/ScreenWrapper'
+
+// const index = () => {
+//   const route = useRouter()
+//   return (
+//     <ScreenWrapper>
+//       <Text>Hello</Text>
+//       <Button title='welcome' onPress={() => route.push('/welcome/welcome')}/>
+//     </ScreenWrapper>
+//   )
+// }
+
+// export default index
+
 // app/index.tsx
 import { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';import { supabase } from '@/lib/supabaseClient';
@@ -24,5 +41,5 @@ export default function Index() {
     return <Redirect href="/sign-in" />;
   }
 
-  return <Redirect href="/home" />; // or your authenticated route
+  return <Redirect href="/welcome/welcome" />;
 }

@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Dimensions, Animated } from "react-native";
-import { ArrowLeft, CogIcon, EllipsisVertical, X } from "lucide-react-native";
-import { Easing } from "react-native-reanimated";
-import Sidebar from "./components/Sidebar";
-
+import { ArrowLeft, BadgeCheck, CogIcon, EllipsisVertical, MessageCircle, X } from "lucide-react-native";
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Button, ButtonText } from "@/components/ui/button";
+import { Divider } from "@/components/ui/divider";
 interface Profile {
   id: string;
   username: string;
@@ -66,62 +66,15 @@ const ProfilePage: React.FC = () => {
     }, [])
   );
 
-  const [showSidebar, setShowSidebar] = useState(false);
   const sidebarPosition = useRef(new Animated.Value(300)).current; // Start off-screen
   const overlayOpacity = useRef(new Animated.Value(0)).current;
-
-  // animation handlers
-  const openSidebar = () => {
-    setShowSidebar(true);
-    Animated.parallel([
-      Animated.timing(sidebarPosition, {
-        toValue: 0,
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: 0.4,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const closeSidebar = () => {
-    Animated.parallel([
-      Animated.timing(sidebarPosition, {
-        toValue: 300,
-        duration: 250,
-        easing: Easing.in(Easing.cubic),
-        useNativeDriver: true,
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => setShowSidebar(false));
-  };
 
   if (loading) return <ActivityIndicator size="large" color="#0ea5e9" />;
   if (error)
     return <Text className="text-red-500 text-lg text-center">{error}</Text>;
   return (
     <View className="flex-1 bg-white items-center">
-      {/* setting icon with sidebar */}
-      <View className="absolute top-1/3 right-0">
-        <TouchableOpacity onPress={openSidebar}>
-          <CogIcon size={24} color="#000" />
-        </TouchableOpacity>
-      </View>
-      {showSidebar && (
-        <Sidebar
-          closeSidebar={closeSidebar}
-          overlayOpacity={overlayOpacity}
-          sidebarPosition={sidebarPosition}
-        />
-      )}
+   
       <View className="w-full flex-row items-center justify-between p-4">
         <TouchableOpacity onPress={() => router.replace("/home")}>
           <ArrowLeft size={24} color="black" />
@@ -138,10 +91,7 @@ const ProfilePage: React.FC = () => {
       {/* Profile Section */}
       <View className="w-full items-center py-6">
         <View className="w-full flex-row items-center justify-around px-4">
-          <View className="items-center">
-            <Text className="text-lg font-semibold">1500</Text>
-            <Text className="text-gray-500">Followers</Text>
-          </View>
+         
           {profile?.profile_picture_url ? (
             <Image
               source={{ uri: profile.profile_picture_url }}
@@ -156,36 +106,56 @@ const ProfilePage: React.FC = () => {
               <Text className="text-gray-500">No Image</Text>
             </View>
           )}
+           <View className="items-center">
+            <Text className="text-lg font-semibold">120</Text>
+            <Text className="text-gray-500">Post</Text>
+          </View>
+          <Divider
+          orientation="vertical"
+          className="h-[25px] w-[0.5px]  bg-gray-600"
+          />
           <View className="items-center">
-            <Text className="text-lg font-semibold">86</Text>
+            <Text className="text-lg font-semibold">1.5M</Text>
+            <Text className="text-gray-500">Friends</Text>
+          </View>
+          <Divider
+          orientation="vertical"
+          className="h-[25px] w-[0.5px]  bg-gray-600"
+          />
+          <View className="items-center">
+            <Text className="text-lg font-semibold">906</Text>
             <Text className="text-gray-500">Following</Text>
           </View>
         </View>
 
-        <Text className="text-xl font-bold mt-2">{profile?.username}</Text>
-        <Text className="text-gray-500">{profile?.email}</Text>
-
-        {/* Stats */}
-        <View className="flex-row justify-around w-full px-10 mt-4">
-          <View className="items-center">
-            <Text className="text-lg font-semibold">0</Text>
-            <Text className="text-gray-500">Posts</Text>
-          </View>
+        <View className="flex items-start justify-start w-full px-10">
+        <View className="flex-row gap-3 items-start justify-start">
+          <Text className="text-xl font-bold mt-2">{profile?.username}</Text>
+          <MaterialIcons name="verified" size={18} color="#0ea5e9" />
         </View>
+        <Text className="text-gray-600 italic text-start">
+          {profile?.bio || "No bio available"}
+        </Text>
+        </View>
+        
 
         {/* Follow Button */}
-        <TouchableOpacity className="mt-4 bg-sky-500 px-10 py-2 rounded-full items-center">
-          <Text className="text-white font-bold w-40 text-center">FOLLOW</Text>
-        </TouchableOpacity>
+        <View className="w-full flex-row justify-around my-4">
+        <Button className="py-1.5 px-8 w-36 bg-sky-400">
+          <ButtonText>
+            Follow
+          </ButtonText>
+        </Button>
+        <Button className="p-5 bg-sky-400 rounded-full">
+         <MessageCircle color="#ffff" size={24} />
+        </Button>
+        </View>
       </View>
 
       {/* Bio Section */}
-      <View className="px-10 py-4 w-full  border-b border-gray-200">
-        <Text className="text-gray-600 italic text-center">
-          {profile?.bio || "No bio available"}
-        </Text>
-      </View>
-
+     
+      <Divider className="w-full h-[0.5px] bg-gray-600 px-10"
+          />
       {/* Posts Section */}
       <View className="w-full p-3">
         <Text className="text-gray-600 ">No Posts</Text>
